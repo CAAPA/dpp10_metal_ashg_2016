@@ -9,14 +9,18 @@ in.frame <- in.frame[,c(
   "MAF", 
   "Freq1.x", "Freq0", #Used to derive EFFECT
   "PValue",  #PVALUE
+  "Rsq.x",
   "Chromosome",
   "Start"
 )]
 
+in.frame <- in.frame[in.frame$MAF >= 0.01,]
+in.frame <- in.frame[in.frame$Rsq.x > 0.5,]
+
 in.frame$EFFECT <- "+"
 in.frame$EFFECT[in.frame$Freq0 > in.frame$Freq1.x] <- "-"
 
-out.frame <- in.frame[,c(1:4,10,7:9)]
+out.frame <- in.frame[,c(1:4,11,7,9,10)]
 names(out.frame) <- c("MARKER", "REF", "ALT", "MAF", "EFFECT", "PVALUE", "CHR", "BP")
 write.table(out.frame, "../data/input/bdos_old.txt",  sep="\t", quote=F, row.names=F, col.names=T)
 
@@ -49,14 +53,15 @@ in.frame <- read.delim("../data/raw/new_results/2_output_mqlsdose_k_0.20.txt")
 in.frame <- in.frame[,c(
   "Marker", #MARKER
   "Freq1", "Freq0", #Used to derive EFFECT
-  "PValue"  #PVALUE
+  "PValue",  #PVALUE
+  "Rsq"
 )]
 in.frame <- in.frame[!is.na(in.frame$PValue),]
 
-info.frame <- read.delim("../data/raw/new_results/2.mach.info")[,c(1,2,3,5,7)]
-info.frame <- info.frame[info.frame$MAF >= 0.01,]
-info.frame <- info.frame[info.frame$Rsq > 0.5,]
+info.frame <- read.delim("../data/raw/new_results/2.mach.info")[,c(1,2,3,5)]
 in.frame <- merge(in.frame, info.frame, by.x="Marker", by.y="SNP")
+in.frame <- in.frame[in.frame$MAF >= 0.01,]
+in.frame <- in.frame[in.frame$Rsq > 0.5,]
 
 in.frame$Marker <- as.character(in.frame$Marker)
 in.frame$CHR <- as.numeric(unlist(strsplit(in.frame$Marker, split=":"))[seq(1,dim(in.frame)[1]*2,2)])
@@ -67,7 +72,7 @@ in.frame <- in.frame[(in.frame$BP >= 115189899) & (in.frame$BP <= 116613328),]
 in.frame$EFFECT <- "+"
 in.frame$EFFECT[in.frame$Freq0 > in.frame$Freq1] <- "-"
 
-out.frame <- in.frame[,c(1,5,6,7,10,4,8,9)]
+out.frame <- in.frame[,c(1,6,7,8,11,4,9,10)]
 names(out.frame) <- c("MARKER", "REF", "ALT", "MAF", "EFFECT", "PVALUE", "CHR", "BP")
 write.table(out.frame, "../data/input/bdos_new.txt",  sep="\t", quote=F, row.names=F, col.names=T)
 
